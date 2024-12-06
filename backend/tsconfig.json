@@ -1,12 +1,14 @@
 {
-    "compilerOptions": {
-      "target": "ES6",
-      "module": "commonjs",       
-      "outDir": "./dist",          // Compile the TypeScript files into the dist folder
-      "strict": true,
-      "esModuleInterop": true
-    },
-    "include": ["src/**/*.ts"],   // Include all TypeScript files in the src folder
-    "exclude": ["node_modules"]   // Exclude the node_modules folder
-  }
+  "ts-node": { "files": true},
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "commonjs",       
+    "outDir": "./dist",          // Compile the TypeScript files into the dist folder
+    "strict": true,
+    "esModuleInterop": true,
+    "typeRoots": ["./node_modules/@types", "./src/@types"],
+  },
+  "include": ["src/**/*.ts", "src/@types/**/*.d.ts"],   // Include all TypeScript files in the src folder
+  "exclude": ["node_modules"]   // Exclude the node_modules folder
+}
   
