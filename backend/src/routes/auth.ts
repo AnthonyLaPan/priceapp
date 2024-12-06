@@ -49,9 +49,16 @@ router.post('/login', async (req: Request, res: Response) => {
         if (!process.env.JWT_SECRET) {
             return res.status(500).json({ message: 'JWT secret is not defined' });
         }
+
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+        res.cookie('token', token, { 
+            httpOnly: true, 
+            secure: process.env.NODE_ENV === 'production' ? true : false,
+            sameSite: 'strict',
+            maxAge: 3600000
+        });
+
         res.json({ message: 'Login successful' });
     }   catch (error) {
         console.error(error);
@@ -61,15 +68,18 @@ router.post('/login', async (req: Request, res: Response) => {
 
 const authenticate = async (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies.token;
+
     if (!token) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
 
     const secret = process.env.JWT_SECRET;
+
     if (!secret) {
         return res.status(500).json({ message: 'JWT secret is not defined' });
     }
-    jwt.verify(token, secret, (err: Error | null, user: JwtPayload | string | undefined) => {
+
+    jwt.verify(token, secret, (err: any, user: JwtPayload | string | undefined) => {
         if (err) {
             return res.status(403).json({ message: 'Forbidden' });
         }
