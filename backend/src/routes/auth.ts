@@ -89,7 +89,8 @@ const authenticate = async (req: Request, res: Response, next: NextFunction) => 
 };
 
 router.get('/protected', authenticate, (req: Request, res: Response) => {
-    res.json({ message: 'Protected route' });
+    //res.json({ message: 'Protected route' });
+    res.json({ authenticated: true });
 });
 
 router.post('/logout', (req: Request, res: Response) => {

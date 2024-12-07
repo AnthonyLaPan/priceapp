@@ -1,23 +1,27 @@
 import { NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
 
-import { NextRequest } from 'next/server';
+export async function middleware(req: Request) {
+  const res = await fetch('http://localhost:3000/api/auth/protected', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Cookie': req.headers.get('cookie') || ''
+    },
+    credentials: 'include'
+  });
 
-export async function middleware(req: NextRequest) {
-  /*const session = await getToken({ req });
-  console.log('Middleware running');
-
-  // If no session (unauthenticated) and the user is trying to access a protected route
-  if (!session && req.nextUrl.pathname !== '/login') {
-    // Redirect to login page
-    return NextResponse.redirect(new URL('/login', req.url));
+  if (res.ok) {
+    const data = await res.json();
+    if (data.authenticated) {
+      return NextResponse.next();
+    }
   }
 
-  // Allow the request to continue if the user is authenticated or on the login page
-  return NextResponse.next();
-}
+  return NextResponse.redirect('http://localhost:3001/login');
+};
 
-// Optionally add matcher to apply middleware only to specific routes
 export const config = {
-  matcher: ['/protected', '/dashboard', '/account'], // Specify paths to protect*/
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico|images|login|$).*)',
+  ],
 };
