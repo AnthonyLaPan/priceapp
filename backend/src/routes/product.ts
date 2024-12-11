@@ -1,29 +1,39 @@
-import { Router } from 'express';
+import express, { Request, Response } from 'express';
 import pool from '../db';
 
-const router = Router();
+const router = express.Router();
 
-router.get('/products', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM products');
-    res.json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Database query error' });
-  }
+// get products
+router.get('/', async (req: Request, res: Response) => {
+  const products = await pool.query('SELECT * FROM products');
+  res.json(products.rows);
 });
 
-router.post('/products', async (req, res) => {
-  const { name, retailer, price, url } = req.body;
+// get product by id
+router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const result = await pool.query(
-      'INSERT INTO products (name, retailer, price, url) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, retailer, price, url]
+    const { id } = req.params;
+
+    // Fetch product information
+    const productResult = await pool.query('SELECT * FROM products WHERE id = $1', [id]);
+    if (productResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    const product = productResult.rows[0];
+
+    // Fetch prices from the `prices` table
+    const pricesResult = await pool.query(
+      'SELECT retailer_name, price, retailer_url FROM prices WHERE product_id = $1',
+      [id]
     );
-    res.status(201).json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Database query error' });
+
+    const prices = pricesResult.rows; // Array of prices with retailer_name, price, and retailer_url
+
+    res.json({ product, prices });
+  } catch (error) {
+    console.error('Error fetching product data:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
