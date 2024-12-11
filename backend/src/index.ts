@@ -14,7 +14,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
-app.use('/api', productRoutes);
+app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
 
 app.listen(PORT, () => {
