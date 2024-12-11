@@ -49,6 +49,7 @@ const ProductPage = async ({ params }: { params: { id: string } }) => {
                 >
                   {price.retailer_name}
                 </a>
+                <a className="text-gray-700"> ${price.price} </a>
               </li>
             )
           )}
